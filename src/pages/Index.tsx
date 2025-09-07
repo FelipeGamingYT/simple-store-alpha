@@ -5,7 +5,7 @@ import { YouTubeEmbed } from "@/components/YouTubeEmbed";
 import { Card } from "@/components/ui/card";
 import { Music, Headphones } from "lucide-react";
 
-const Index = () => {
+const IndexNew = () => {
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
@@ -151,4 +151,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default IndexNew;
