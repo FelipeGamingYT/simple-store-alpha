@@ -1,156 +1,152 @@
 import { useState } from "react";
-import { Header } from "@/components/Header";
-import { ProductCard, Product } from "@/components/ProductCard";
-import { Cart, CartItem } from "@/components/Cart";
-import { useToast } from "@/hooks/use-toast";
+import { MusicPlayer, Track } from "@/components/MusicPlayer";
+import { PlaylistItem } from "@/components/PlaylistItem";
+import { YouTubeEmbed } from "@/components/YouTubeEmbed";
+import { Card } from "@/components/ui/card";
+import { Music, Headphones } from "lucide-react";
 
 const Index = () => {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const { toast } = useToast();
+  const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
 
-  const products: Product[] = [
+  const playlist: Track[] = [
     {
-      id: 1,
-      name: "Smartphone Premium",
-      price: 1299.99,
-      image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400",
-      category: "Eletrônicos",
-      description: "Smartphone com tela OLED e câmera profissional"
+      id: "1",
+      title: "Shape of You",
+      artist: "Ed Sheeran",
+      youtubeId: "JGwWNGJdvx8",
+      duration: "3:53",
+      thumbnail: "https://img.youtube.com/vi/JGwWNGJdvx8/mqdefault.jpg"
     },
     {
-      id: 2,
-      name: "Notebook Gamer",
-      price: 2499.99,
-      image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400",
-      category: "Eletrônicos", 
-      description: "Notebook para jogos com placa de vídeo dedicada"
+      id: "2", 
+      title: "Blinding Lights",
+      artist: "The Weeknd",
+      youtubeId: "4NRXx6U8ABQ",
+      duration: "3:20",
+      thumbnail: "https://img.youtube.com/vi/4NRXx6U8ABQ/mqdefault.jpg"
     },
     {
-      id: 3,
-      name: "Fones Bluetooth",
-      price: 299.99,
-      image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400",
-      category: "Áudio",
-      description: "Fones sem fio com cancelamento de ruído"
+      id: "3",
+      title: "Someone Like You",
+      artist: "Adele", 
+      youtubeId: "hLQl3WQQoQ0",
+      duration: "4:45",
+      thumbnail: "https://img.youtube.com/vi/hLQl3WQQoQ0/mqdefault.jpg"
     },
     {
-      id: 4,
-      name: "Câmera DSLR",
-      price: 1899.99,
-      image: "https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=400",
-      category: "Fotografia",
-      description: "Câmera profissional para fotografia"
+      id: "4",
+      title: "Uptown Funk",
+      artist: "Mark Ronson ft. Bruno Mars",
+      youtubeId: "OPf0YbXqDm0",
+      duration: "4:30",
+      thumbnail: "https://img.youtube.com/vi/OPf0YbXqDm0/mqdefault.jpg"
     },
     {
-      id: 5,
-      name: "Smartwatch",
-      price: 599.99,
-      image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400",
-      category: "Wearables",
-      description: "Relógio inteligente com monitor cardíaco"
+      id: "5",
+      title: "Bad Guy",
+      artist: "Billie Eilish",
+      youtubeId: "DyDfgMOUjCI",
+      duration: "3:14",
+      thumbnail: "https://img.youtube.com/vi/DyDfgMOUjCI/mqdefault.jpg"
     },
     {
-      id: 6,
-      name: "Tablet Pro",
-      price: 899.99,
-      image: "https://images.unsplash.com/photo-1561154464-82e9adf32764?w=400",
-      category: "Eletrônicos",
-      description: "Tablet com caneta digital incluída"
+      id: "6",
+      title: "Perfect",
+      artist: "Ed Sheeran",
+      youtubeId: "2Vv-BfVoq4g",
+      duration: "4:23",
+      thumbnail: "https://img.youtube.com/vi/2Vv-BfVoq4g/mqdefault.jpg"
     }
   ];
 
-  const addToCart = (product: Product) => {
-    setCartItems(currentItems => {
-      const existingItem = currentItems.find(item => item.id === product.id);
-      
-      if (existingItem) {
-        return currentItems.map(item =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      } else {
-        return [...currentItems, { ...product, quantity: 1 }];
-      }
-    });
-    
-    toast({
-      title: "Produto adicionado!",
-      description: `${product.name} foi adicionado ao carrinho.`,
-    });
+  const handleTrackSelect = (track: Track) => {
+    setCurrentTrack(track);
+    setCurrentTrackIndex(playlist.findIndex(t => t.id === track.id));
+    setIsPlaying(true);
   };
 
-  const updateQuantity = (id: number, quantity: number) => {
-    if (quantity <= 0) {
-      removeFromCart(id);
-      return;
+  const handlePlayPause = () => {
+    if (!currentTrack && playlist.length > 0) {
+      setCurrentTrack(playlist[0]);
+      setCurrentTrackIndex(0);
     }
-    
-    setCartItems(currentItems =>
-      currentItems.map(item =>
-        item.id === id ? { ...item, quantity } : item
-      )
-    );
+    setIsPlaying(!isPlaying);
   };
 
-  const removeFromCart = (id: number) => {
-    setCartItems(currentItems => currentItems.filter(item => item.id !== id));
-    toast({
-      title: "Produto removido",
-      description: "Item removido do carrinho.",
-      variant: "destructive",
-    });
+  const handleNext = () => {
+    const nextIndex = (currentTrackIndex + 1) % playlist.length;
+    setCurrentTrack(playlist[nextIndex]);
+    setCurrentTrackIndex(nextIndex);
+    setIsPlaying(true);
   };
 
-  const handleCheckout = () => {
-    toast({
-      title: "Compra finalizada!",
-      description: "Obrigado pela sua compra. Você receberá um email de confirmação.",
-    });
-    setCartItems([]);
-    setIsCartOpen(false);
+  const handlePrevious = () => {
+    const prevIndex = currentTrackIndex === 0 ? playlist.length - 1 : currentTrackIndex - 1;
+    setCurrentTrack(playlist[prevIndex]);
+    setCurrentTrackIndex(prevIndex);
+    setIsPlaying(true);
   };
-
-  const cartItemsCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <div className="min-h-screen bg-background">
-      <Header 
-        cartItemsCount={cartItemsCount}
-        onCartClick={() => setIsCartOpen(true)}
-      />
+      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-center space-x-2">
+            <Music className="h-8 w-8 text-primary" />
+            <h1 className="text-2xl font-bold">YouTube Music Player</h1>
+            <Headphones className="h-6 w-6 text-primary" />
+          </div>
+        </div>
+      </header>
       
       <main className="container mx-auto px-4 py-8">
-        <section className="mb-12 text-center">
-          <h1 className="text-4xl font-bold mb-4">Bem-vindo à nossa loja!</h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Descubra produtos incríveis com os melhores preços e qualidade garantida.
+        <section className="mb-8 text-center">
+          <h2 className="text-3xl font-bold mb-4">Player de Música</h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Ouça suas músicas favoritas diretamente do YouTube de forma legal e gratuita.
           </p>
         </section>
 
-        <section id="produtos">
-          <h2 className="text-3xl font-bold mb-8 text-center">Nossos Produtos</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {products.map(product => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onAddToCart={addToCart}
-              />
-            ))}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-6">
+            <MusicPlayer
+              currentTrack={currentTrack}
+              onPlayPause={handlePlayPause}
+              onNext={handleNext}
+              onPrevious={handlePrevious}
+              isPlaying={isPlaying}
+            />
+            
+            {currentTrack && (
+              <Card className="p-4">
+                <h3 className="text-lg font-semibold mb-4">Reproduzindo agora</h3>
+                <YouTubeEmbed 
+                  videoId={currentTrack.youtubeId} 
+                  autoplay={isPlaying}
+                />
+              </Card>
+            )}
           </div>
-        </section>
-      </main>
 
-      <Cart
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        items={cartItems}
-        onUpdateQuantity={updateQuantity}
-        onRemoveItem={removeFromCart}
-        onCheckout={handleCheckout}
-      />
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold">Playlist</h3>
+            <div className="space-y-3">
+              {playlist.map((track) => (
+                <PlaylistItem
+                  key={track.id}
+                  track={track}
+                  isCurrentTrack={currentTrack?.id === track.id}
+                  isPlaying={isPlaying && currentTrack?.id === track.id}
+                  onSelect={handleTrackSelect}
+                  onPlayPause={handlePlayPause}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   );
 };
